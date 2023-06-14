@@ -12,7 +12,7 @@ class State:
     ir_connected = False
     last_car_setup_tick = -1
 
-chairConnected = False
+chairConnected = True
 # here we check if we are connected to iracing
 # so we can retrieve some data
 def check_iracing():
@@ -37,36 +37,51 @@ def loop():
     t = ir['SessionTime']
     print('session time:', t)
 
-    speed = ir['Speed']
-    print('Speed:', speed)
+    #speed = ir['Speed']
+    #print('Speed:', speed)
 
                       
     pitch = ir['Pitch']
     print('Pitch:', pitch)
-    PitchRate = ir['PitchRate'] #8.786555127926476e-08
-    #print('PitchRate:', PitchRate)
-    PitchRate_ST = ir['PitchRate_ST'] #[3.257972593928571e-07, 3.3143493283205316e-07, 3.4653390912353643e-07, 2.409470312159101e-07, 1.5829981236947788e-07, 8.786555127926476e-08]
-    #print('PitchRate_ST:', PitchRate_ST)
-
+    
     Roll = ir['Roll']
     print('Roll:', Roll)
-    RollRate = ir['RollRate'] #3.12117554130964e-05
-    #print('RollRate:', RollRate)
-    RollRate_ST = ir['RollRate_ST'] #[-3.5479733924148604e-05, -3.106678923359141e-05, -2.1410816771094687e-05, -6.255076186789665e-06, 1.1896221622009762e-05, 3.12117554130964e-05]
-    #print('RollRate_ST:', RollRate_ST)
 
     VertAccel = ir['VertAccel'] # 9.806662559509277
     print('VertAccel:', VertAccel)
 
-    VertAccel_ST = ir['VertAccel_ST'] # [9.806638717651367, 9.806638717651367, 9.806644439697266, 9.806645393371582, 9.806645393371582, 9.806646347045898]
-    #print('VertAccel_ST:', VertAccel_ST)
-
     Yaw = ir['Yaw']
     print('Yaw:', Yaw)
+
+    LatAccel = ir['LatAccel']
+    print('LatAccel:', LatAccel)
+
+    LongAccel= ir['LongAccel']
+    print('LongAccel:', LongAccel)
+
+
+    #PitchRate = ir['PitchRate'] #8.786555127926476e-08
+    #print('PitchRate:', PitchRate)
+    #PitchRate_ST = ir['PitchRate_ST'] #[3.257972593928571e-07, 3.3143493283205316e-07, 3.4653390912353643e-07, 2.409470312159101e-07, 1.5829981236947788e-07, 8.786555127926476e-08]
+    #print('PitchRate_ST:', PitchRate_ST)
+
+    
+    #RollRate = ir['RollRate'] #3.12117554130964e-05
+    #print('RollRate:', RollRate)
+    #RollRate_ST = ir['RollRate_ST'] #[-3.5479733924148604e-05, -3.106678923359141e-05, -2.1410816771094687e-05, -6.255076186789665e-06, 1.1896221622009762e-05, 3.12117554130964e-05]
+    #print('RollRate_ST:', RollRate_ST)
+
+    #VertAccel = ir['VertAccel'] # 9.806662559509277
+    #print('VertAccel:', VertAccel)
+
+    #VertAccel_ST = ir['VertAccel_ST'] # [9.806638717651367, 9.806638717651367, 9.806644439697266, 9.806645393371582, 9.806645393371582, 9.806646347045898]
+    #print('VertAccel_ST:', VertAccel_ST)
+
+    
     
     if chairConnected:
-        move()
-        print('Data send to chair')
+        move(transformData(pitch), transformData(Roll), VertAccel, transformData(Yaw), LatAccel, LongAccel)
+        #print('Data send to chair')
 
 
 #def sendData():
@@ -116,20 +131,42 @@ def sendData(PitchAxis, RollAxis, HeaveAxis, YawAxis, LateralAxis, LongAxis, por
     else:
         Faultys.append("Pitchaxis.text is too long or too short")
 
-def move(_position, _rotation):
+    # transorming Data to fit the scale of Data the chair can use
+def transformData(_value):
+    value = clampToOne(_value)
+    return scaleToBounds(value, -600, 600)
+    
+  
+def clampToOne(value):
+    return max(-1.0, min( 1.0, value))
+
+def scaleToBounds(value, min, max):
+    result = value *( min if value > 0 else max)
+    return result
+
+def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     # convert vectors to string-components and send to X6
-    xPos = toHexapodString(-_position.x)
-    yPos = toHexapodString(_position.y)
-    zPos = toHexapodString(-_position.z)
-    xRot = toHexapodString(_rotation.x)
-    yRot = toHexapodString(-_rotation.y)
-    zRot = toHexapodString(_rotation.z)
+    pitchAxis = toHexapodString(_pitchAxis)
+    rollAxis = toHexapodString(_rollAxis)
+    vertAxis = toHexapodString(_vertAxis)
+    yawAxis = toHexapodString(_yawAxis)
+    latAxis = toHexapodString(_latAxis)
+    longAxis = toHexapodString(_longAxis)
     # X6.SendData(xRot, zRot, yPos, yRot, xPos, zPos, 59999)  # default values
     # X6.SendData(zPos, zRot, yPos, xPos, yRot, xRot, 59999)  # switched values
     # X6.SendData(xRot, zRot, yRot, yPos, xPos, zPos, 59999)  # default values
-    sendData(xRot, zRot, yPos, yRot, xPos, zPos, 59999)  # default values
+    
+    #sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
+    print('Data send to chair')
+
     # X6.SendData("0", "0", "0", xPos, yPos, zPos, 59999)  # default values
-    debugText.text = "Pos: " + str(_position) + ", rot" + str(_rotation)
+    #print("Pos: " + str(_position) + ", rot" + str(_rotation))
+    print('pitchAxis:', pitchAxis)
+    print('rollAxis:', rollAxis)
+    print('vertAxis:', vertAxis)
+    print('yawAxis:', yawAxis)
+    print('latAxis:', latAxis)
+    print('longAxis:', longAxis)
     # Debug.Log("zPos: "+zPos + ", zRot: " + zRot + ",yPos: " + yPos + ",xPos" + xPos + ",yRot: " + yRot + ",xRot: " + xRot)
 
 # create a three-digit string with leading 1 (-) or 0 (+) according to the sign
