@@ -41,7 +41,7 @@ def loop():
     #print('Speed:', speed)
 
                       
-    pitch = ir['Pitch']
+    pitch = ir['Pitch'] * 3
     print('Pitch:', pitch)
     
     Roll = ir['Roll']
@@ -157,6 +157,8 @@ def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     # X6.SendData(xRot, zRot, yRot, yPos, xPos, zPos, 59999)  # default values
     
     #sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
+    sendData(pitchAxis, "0000", "0000", "0000", "0000", "0000", 59999)  # default values
+
     print('Data send to chair')
 
     # X6.SendData("0", "0", "0", xPos, yPos, zPos, 59999)  # default values
