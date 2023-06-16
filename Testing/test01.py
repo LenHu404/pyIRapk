@@ -5,7 +5,13 @@ import time
 import socket
 from pythonping import ping
 
-
+#use to strengthened or weakeneach movement
+pitchGain = 10
+rollGain = 10
+yawGain = 0.5
+heaveGain = 1
+latGain = 0.05
+longGain = 0.05
 
 # this is our State class, with some helpful variables
 class State:
@@ -41,22 +47,26 @@ def loop():
     #print('Speed:', speed)
 
                       
-    pitch = ir['Pitch'] * 3
+    pitch = ir['Pitch'] * pitchGain
     print('Pitch:', pitch)
     
-    Roll = ir['Roll']
+    Roll = ir['Roll'] * rollGain
     print('Roll:', Roll)
 
-    VertAccel = ir['VertAccel'] # 9.806662559509277
+    VertAccel = (ir['VertAccel'] - 9.8) * heaveGain # minus 9.8 to compensate for gravity
     print('VertAccel:', VertAccel)
 
-    Yaw = ir['Yaw']
-    print('Yaw:', Yaw)
+    #Yaw = ir['Yaw'] * yawGain
+    #print('Yaw:', Yaw)
+    #YawNorth = ir['YawNorth'] * yawGain
+    #print('YawNorth:', YawNorth)
+    YawRate = ir['YawRate'] * yawGain
+    print('YawRate:', YawRate)
 
-    LatAccel = ir['LatAccel']
+    LatAccel = ir['LatAccel'] * latGain
     print('LatAccel:', LatAccel)
 
-    LongAccel= ir['LongAccel']
+    LongAccel= ir['LongAccel'] * longGain
     print('LongAccel:', LongAccel)
 
 
@@ -80,7 +90,7 @@ def loop():
     
     
     if chairConnected:
-        move(transformData(pitch), transformData(Roll), VertAccel, transformData(Yaw), LatAccel, LongAccel)
+        move(transformData(pitch), transformData(Roll), transformData(VertAccel), transformData(YawRate), transformData(LatAccel), transformData(LongAccel))
         #print('Data send to chair')
 
 
@@ -157,7 +167,7 @@ def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     # X6.SendData(xRot, zRot, yRot, yPos, xPos, zPos, 59999)  # default values
     
     #sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
-    sendData(pitchAxis, "0000", "0000", "0000", "0000", "0000", 59999)  # default values
+    #sendData(pitchAxis, "0000", "0000", "0000", "0000", "0000", 59999)  # default values
 
     print('Data send to chair')
 
