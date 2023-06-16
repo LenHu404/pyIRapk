@@ -172,7 +172,7 @@ def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
 # create a three-digit string with leading 1 (-) or 0 (+) according to the sign
 def toHexapodString(_f):
     res = "1" if _f < 0 else "0"
-    res += str(abs(_f)).zfill(3)
+    res += str(int(abs(_f))).zfill(3)
     return res
 
 if __name__ == '__main__':
