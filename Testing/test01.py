@@ -5,7 +5,7 @@ import time
 import socket
 from pythonping import ping
 
-#use to strengthened or weakeneach movement
+#use to strengthened or weaken each movement
 pitchGain = 10
 rollGain = 10
 yawGain = 0.5
@@ -36,6 +36,9 @@ def check_iracing():
 def check_ControlPC():
     ping('192.168.0.10', verbose=True )
 
+def check_FestoCOntroller():
+    ping('192.168.0.11', verbose=True )
+
 # our main loop, where we retrieve data
 # and do something useful with it
 def loop():
@@ -56,11 +59,11 @@ def loop():
     VertAccel = (ir['VertAccel'] - 9.8) * heaveGain # minus 9.8 to compensate for gravity
     print('VertAccel:', VertAccel)
 
-    #Yaw = ir['Yaw'] * yawGain
+    #Yaw = ir['Yaw'] * yawGain  # both yaw and yawnorth doesnt work because they use absolut values on direction the player is facing
     #print('Yaw:', Yaw)
     #YawNorth = ir['YawNorth'] * yawGain
     #print('YawNorth:', YawNorth)
-    YawRate = ir['YawRate'] * yawGain
+    YawRate = ir['YawRate'] * yawGain # yawrate seems to just put out the difference in turning in a set amount of time 
     print('YawRate:', YawRate)
 
     LatAccel = ir['LatAccel'] * latGain
@@ -94,23 +97,12 @@ def loop():
         #print('Data send to chair')
 
 
-#def sendData():
-#    UDP_IP = "192.168.235.1"
-#    UDP_PORT = 5005
-#    MESSAGE = b"Test01 to %s" % UDP_IP
-#    print("UDP target IP: %s" % UDP_IP)
-#    print("UDP target port: %s" % UDP_PORT)
-#    print("message: %s" % MESSAGE)
-#    sock = socket.socket(socket.AF_INET, # Internet
-#                          socket.SOCK_DGRAM) # UDP
-#    sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
-
 def sendData(PitchAxis, RollAxis, HeaveAxis, YawAxis, LateralAxis, LongAxis, port):
-    host = "192.168.0.10"  # Replace with your desired IP address
+    host = "192.168.0.10"  # IP of Festo PC 
     endpoint = (host, port)
     udpClient = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     str = ":"
-    Faultys = ""
+    Faultys = "" 
 
     if len(PitchAxis) == 4:
         if len(RollAxis) == 4:
@@ -119,7 +111,8 @@ def sendData(PitchAxis, RollAxis, HeaveAxis, YawAxis, LateralAxis, LongAxis, por
                     if len(LateralAxis) == 4:
                         if len(LongAxis) == 4:
                             try:
-                                s = "d" + PitchAxis + str + RollAxis + str + HeaveAxis + str + YawAxis + str + LateralAxis + str + LongAxis + "e"
+                                s = "d" + PitchAxis + str + RollAxis + str + HeaveAxis + str + YawAxis + str + LateralAxis + str + LongAxis + "e" 
+                                #s is the string with the data in expod formation (d0000:0000:0000:0000:0000:0000e) this can be seen with wireshark
                                 if s != "":
                                     bytes = s.encode('utf-8')  
                                     udpClient.sendto(bytes, endpoint)
