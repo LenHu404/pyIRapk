@@ -13,14 +13,15 @@ heaveGain = 1
 latGain = 0.05
 longGain = 0.05
 
+chairConnected = True
+DebugMode = False
 # this is our State class, with some helpful variables
 class State:
     ir_connected = False
     last_car_setup_tick = -1
 
-chairConnected = True
 # here we check if we are connected to iracing
-# so we can retrieve some data
+# so we can retrieve data
 def check_iracing():
     if state.ir_connected and not (ir.is_initialized and ir.is_connected):
         state.ir_connected = False
@@ -159,8 +160,12 @@ def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     # X6.SendData(zPos, zRot, yPos, xPos, yRot, xRot, 59999)  # switched values
     # X6.SendData(xRot, zRot, yRot, yPos, xPos, zPos, 59999)  # default values
     
-    #sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
-    #sendData(pitchAxis, "0000", "0000", "0000", "0000", "0000", 59999)  # default values
+    if (DebugMode != True):
+        #sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
+        #sendData(pitchAxis, "0000", "0000", "0000", "0000", "0000", 59999)  # default values
+        #sendData(pitchAxis, rollAxis, "0000", yawAxis, "0000", "0000", 59999)  #only rotations
+        sendData( "0000",  "0000", vertAxis,  "0000", latAxis, longAxis, 59999)  # only directional forces
+
 
     print('Data send to chair')
 
