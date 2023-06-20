@@ -6,15 +6,15 @@ import socket
 from pythonping import ping
 
 #use to strengthened or weaken each movement
-pitchGain = 10
-rollGain = 10
-yawGain = 0.5
+pitchGain = 8
+rollGain = 8
+yawGain = 0.2
 heaveGain = 1
 latGain = 0.05
 longGain = 0.05
 
 chairConnected = True
-DebugMode = True
+DebugMode = False
 # this is our State class, with some helpful variables
 class State:
     ir_connected = False
@@ -51,7 +51,7 @@ def loop():
     #print('Speed:', speed)
 
                       
-    pitch = ir['Pitch'] * pitchGain
+    pitch = ir['Pitch'] * pitchGain * -1 # minus 1 bc the chair uses it the other way
     print('Pitch:', pitch)
     
     Roll = ir['Roll'] * rollGain
@@ -161,10 +161,10 @@ def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     # X6.SendData(xRot, zRot, yRot, yPos, xPos, zPos, 59999)  # default values
     
     if (DebugMode != True):
-        #sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
+        sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
         #sendData(pitchAxis, "0000", "0000", "0000", "0000", "0000", 59999)  # default values
         #sendData(pitchAxis, rollAxis, "0000", yawAxis, "0000", "0000", 59999)  #only rotations
-        sendData( "0000",  "0000", vertAxis,  "0000", latAxis, longAxis, 59999)  # only directional forces
+        #sendData( "0000",  "0000", vertAxis,  "0000", latAxis, longAxis, 59999)  # only directional forces
 
 
     print('Data send to chair')
