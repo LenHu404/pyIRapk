@@ -14,7 +14,7 @@ latGain = 0.05
 longGain = 0.05
 
 chairConnected = True
-DebugMode = False
+DebugMode = True
 # this is our State class, with some helpful variables
 class State:
     ir_connected = False
@@ -138,14 +138,14 @@ def sendData(PitchAxis, RollAxis, HeaveAxis, YawAxis, LateralAxis, LongAxis, por
     # transorming Data to fit the scale of Data the chair can use
 def transformData(_value):
     value = clampToOne(_value)
-    return scaleToBounds(value, -600, 600)
+    return scaleToBounds(value, 600)
     
   
 def clampToOne(value):
     return max(-1.0, min( 1.0, value))
 
-def scaleToBounds(value, min, max):
-    result = value *( min if value > 0 else max)
+def scaleToBounds(value, multiplier):
+    result = value * multiplier
     return result
 
 def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
