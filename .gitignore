@@ -20,3 +20,7 @@ setup.cfg
 .vs/slnx.sqlite
 .vs/slnx.sqlite
 .vs/pyIRapk/FileContentIndex/d14eb868-eaf6-4fb5-9224-826dca584185.vsidx
+
+.vs/pyIRapk/v17/
+
+*.sqlite
