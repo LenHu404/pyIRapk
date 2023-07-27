@@ -6,12 +6,12 @@ import socket
 from pythonping import ping
 
 #use to strengthened or weaken each movement
-pitchGain = 4
-rollGain = 4
-yawGain = 0.2
-heaveGain = 0.07
-latGain = 0.08
-longGain = 0.15
+pitchGain = 6
+rollGain = 5
+yawGain = 0.3
+heaveGain = 0.09
+latGain = 0.3
+longGain = 4
 
 chairConnected = True
 DebugMode = False
