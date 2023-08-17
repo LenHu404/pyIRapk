@@ -82,6 +82,7 @@ def toHexapodString(_f):
     res = "1" if _f < 0 else "0"
     res += str(int(abs(_f))).zfill(3)
     return res
-
+move(transformData(0.),transformData(0.),transformData(0),transformData(0.),transformData(0.),transformData
 print("Test started")
-move(transformData(0.),transformData(0),transformData(0.),transformData(0),transformData(0),transformData(0))
+#move(transformData(0.3453),transformData(0.24),transformData(0.4545),transformData(0.3523),transformData(0.2523),transformData(0.352))
+(0.))
