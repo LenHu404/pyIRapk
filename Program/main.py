@@ -184,7 +184,7 @@ def clampToOne(value, variable, multiplier):
         case "long":
             #value = value * longGain
             
-            return  (value / longMax) * multiplier
+            return  (value / (longMax * longGain)) * multiplier
         case _:
             print("no matching variable")
     return max(-1.0, min( 1.0, value))
