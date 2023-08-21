@@ -5,13 +5,20 @@ import time
 import socket
 from pythonping import ping
 
-#use to strengthened or weaken each movement
-pitchGain = 6
-rollGain = 5
-yawGain = 0.3
-heaveGain = 0.09
-latGain = 0.3
-longGain = 4
+#use to strengthened or weaken each 
+pitchGain = 1
+rollGain = 1
+yawGain = 1
+heaveGain = 0.8
+latGain = 1.2
+longGain = 1.5
+
+pitchMax = 0.5
+rollMax = 0.5
+yawMax = 1
+heaveMax = 30
+lateralMax = 40
+longMax = 90
 
 chairConnected = True
 DebugMode = False
@@ -45,33 +52,33 @@ def check_FestoCOntroller():
 def loop():
 
     t = ir['SessionTime']
-    print('session time:', t)
+    #print('session time:', t)
 
     #speed = ir['Speed']
     #print('Speed:', speed)
 
                       
     pitch = ir['Pitch'] * pitchGain * -1 # minus 1 bc the chair uses it the other way
-    print('Pitch:', pitch)
+    #print('Pitch:', pitch)
     
-    Roll = ir['Roll'] * rollGain
-    print('Roll:', Roll)
+    Roll = ir['Roll'] * rollGain  * -1 # minus 1 to simulatein in the correct direction
+    #print('Roll:', Roll)
 
     VertAccel = (ir['VertAccel'] - 9.8) * heaveGain # minus 9.8 to compensate for gravity
-    print('VertAccel:', VertAccel)
+    #print('VertAccel:', VertAccel)
 
     #Yaw = ir['Yaw'] * yawGain  # both yaw and yawnorth doesnt work because they use absolut values on direction the player is facing
     #print('Yaw:', Yaw)
     #YawNorth = ir['YawNorth'] * yawGain
     #print('YawNorth:', YawNorth)
-    YawRate = ir['YawRate'] * yawGain # yawrate seems to just put out the difference in turning in a set amount of time 
-    print('YawRate:', YawRate)
+    #YawRate = ir['YawRate'] * yawGain # yawrate seems to just put out the difference in turning in a set amount of time 
+    #print('YawRate:', YawRate)
 
-    LatAccel = ir['LatAccel'] * latGain
-    print('LatAccel:', LatAccel)
+    LatAccel = ir['LatAccel'] * latGain * -1 # minus 1 to simulatein in the correct direction
+    #print('LatAccel:', LatAccel)
 
     LongAccel= ir['LongAccel'] * longGain
-    print('LongAccel:', LongAccel)
+    #print('LongAccel:', LongAccel)
 
 
     #PitchRate = ir['PitchRate'] #8.786555127926476e-08
@@ -92,9 +99,11 @@ def loop():
     #print('VertAccel_ST:', VertAccel_ST)
 
     
-    
+    #if chairConnected:
+        #move(transformData(pitch, "pitch"), transformData(Roll, "roll"), transformData(VertAccel, "heave"), transformData(0, "yaw"), transformData(LatAccel, "lateral"), transformData(LongAccel, "long"))
+        #print('Data send to chair')
     if chairConnected:
-        move(transformData(pitch), transformData(Roll), transformData(VertAccel), transformData(YawRate), transformData(LatAccel), transformData(LongAccel))
+        move(((pitch/ pitchMax) * 500), (Roll/ rollMax) * 500, (VertAccel/ heaveMax) * 500 , 0, (LatAccel / lateralMax) * 500, (LongAccel / longMax) * 500)
         #print('Data send to chair')
 
 
@@ -112,7 +121,9 @@ def sendData(PitchAxis, RollAxis, HeaveAxis, YawAxis, LateralAxis, LongAxis, por
                     if len(LateralAxis) == 4:
                         if len(LongAxis) == 4:
                             try:
-                                s = "d" + PitchAxis + str + RollAxis + str + HeaveAxis + str + YawAxis + str + LateralAxis + str + LongAxis + "e" 
+                                #s = "d" + PitchAxis + str + RollAxis + str + HeaveAxis + str + YawAxis + str + LateralAxis + str + LongAxis + "e" 
+                                s = "".join (["d", PitchAxis, str, RollAxis, str, HeaveAxis, str, YawAxis, str, LateralAxis, str, LongAxis, "e" ])
+                                #print(s)
                                 #s is the string with the data in expod formation (d0000:0000:0000:0000:0000:0000e) this can be seen with wireshark
                                 if s != "":
                                     bytes = s.encode('utf-8')  
@@ -121,27 +132,61 @@ def sendData(PitchAxis, RollAxis, HeaveAxis, YawAxis, LateralAxis, LongAxis, por
                                     #bytes = str(IncommingNews[0]).encode('utf-8')
                                     #udpClient.sendto(bytes, endpoint)
                             except Exception as ex:
-                                Faultys.append(ex)
+                                print(ex)
                         else:
-                            Faultys.append("Longaxis.text is too long or too short")
+                            print("Longaxis.text is too long or too short")
                     else:
-                        Faultys.append("Lateralaxis.text is too long or too short")
+                        print("Lateralaxis.text is too long or too short")
                 else:
-                    Faultys.append("Yawaxis.text is too long or too short")
+                    print("Yawaxis.text is too long or too short")
             else:
-                Faultys.append("Heaveaxis.text is too long or too short")
+                print("Heaveaxis.text is too long or too short")
         else:
-            Faultys.append("Rollaxis.text is too long or too short")
+            print("Rollaxis.text is too long or too short")
     else:
-        Faultys.append("Pitchaxis.text is too long or too short")
+        print("Pitchaxis.text is too long or too short")
 
     # transorming Data to fit the scale of Data the chair can use
-def transformData(_value):
-    value = clampToOne(_value)
-    return scaleToBounds(value, 600)
+def transformData(_value, variable):
+    value = clampToOne(_value, variable, 500)
+    return value
+
+    #return scaleToBounds(value, 500)
     
   
-def clampToOne(value):
+def clampToOne(value, variable, multiplier):
+    match variable:
+        case "pitch":
+            #value = value * pitchGain
+            
+            return (value / pitchMax) * multiplier
+
+        case "roll":
+            #value = value * rollGain
+            
+            return  (value / rollMax) * multiplier
+
+        case "heave":
+            #value = value * heaveGain
+            
+            return  (value / heaveMax) * multiplier
+    
+        case "yaw":
+            #value = value * yawGain
+            
+            return  (value / yawMax) * multiplier
+
+        case "lateral":
+            #value = value * latGain
+            
+            return  (value / lateralMax) * multiplier
+
+        case "long":
+            #value = value * longGain
+            
+            return  (value / longMax) * multiplier
+        case _:
+            print("no matching variable")
     return max(-1.0, min( 1.0, value))
 
 def scaleToBounds(value, multiplier):
@@ -161,22 +206,22 @@ def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     # X6.SendData(xRot, zRot, yRot, yPos, xPos, zPos, 59999)  # default values
     
     if (DebugMode != True):
-        #sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
+        sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
         #sendData(pitchAxis, "0000", "0000", "0000", "0000", "0000", 59999)  # default values
-        sendData(pitchAxis, rollAxis, "0000", yawAxis, "0000", "0000", 59999)  #only rotations
+        #sendData(pitchAxis, rollAxis, "0000", yawAxis, "0000", "0000", 59999)  #only rotations
         #sendData( "0000",  "0000", vertAxis,  "0000", latAxis, longAxis, 59999)  # only directional forces
 
 
-    print('Data send to chair')
+    #print('Data send to chair')
 
     # X6.SendData("0", "0", "0", xPos, yPos, zPos, 59999)  # default values
     #print("Pos: " + str(_position) + ", rot" + str(_rotation))
-    print('pitchAxis:', pitchAxis)
-    print('rollAxis:', rollAxis)
-    print('vertAxis:', vertAxis)
-    print('yawAxis:', yawAxis)
-    print('latAxis:', latAxis)
-    print('longAxis:', longAxis)
+    #print('pitchAxis:', pitchAxis)
+    #print('rollAxis:', rollAxis)
+    #print('vertAxis:', vertAxis)
+    #print('yawAxis:', yawAxis)
+    #print('latAxis:', latAxis)
+    #print('longAxis:', longAxis)
     # Debug.Log("zPos: "+zPos + ", zRot: " + zRot + ",yPos: " + yPos + ",xPos" + xPos + ",yRot: " + yRot + ",xRot: " + xRot)
 
 # create a three-digit string with leading 1 (-) or 0 (+) according to the sign
