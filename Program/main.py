@@ -54,9 +54,6 @@ def loop():
     t = ir['SessionTime']
     #print('session time:', t)
 
-    #speed = ir['Speed']
-    #print('Speed:', speed)
-
                       
     pitch = ir['Pitch'] * pitchGain * -1 # minus 1 bc the chair uses it the other way
     #print('Pitch:', pitch)
@@ -81,29 +78,14 @@ def loop():
     #print('LongAccel:', LongAccel)
 
 
-    #PitchRate = ir['PitchRate'] #8.786555127926476e-08
-    #print('PitchRate:', PitchRate)
-    #PitchRate_ST = ir['PitchRate_ST'] #[3.257972593928571e-07, 3.3143493283205316e-07, 3.4653390912353643e-07, 2.409470312159101e-07, 1.5829981236947788e-07, 8.786555127926476e-08]
-    #print('PitchRate_ST:', PitchRate_ST)
+   
 
     
-    #RollRate = ir['RollRate'] #3.12117554130964e-05
-    #print('RollRate:', RollRate)
-    #RollRate_ST = ir['RollRate_ST'] #[-3.5479733924148604e-05, -3.106678923359141e-05, -2.1410816771094687e-05, -6.255076186789665e-06, 1.1896221622009762e-05, 3.12117554130964e-05]
-    #print('RollRate_ST:', RollRate_ST)
-
-    #VertAccel = ir['VertAccel'] # 9.806662559509277
-    #print('VertAccel:', VertAccel)
-
-    #VertAccel_ST = ir['VertAccel_ST'] # [9.806638717651367, 9.806638717651367, 9.806644439697266, 9.806645393371582, 9.806645393371582, 9.806646347045898]
-    #print('VertAccel_ST:', VertAccel_ST)
-
-    
-    #if chairConnected:
-        #move(transformData(pitch, "pitch"), transformData(Roll, "roll"), transformData(VertAccel, "heave"), transformData(0, "yaw"), transformData(LatAccel, "lateral"), transformData(LongAccel, "long"))
-        #print('Data send to chair')
     if chairConnected:
-        move(((pitch/ pitchMax) * 500), (Roll/ rollMax) * 500, (VertAccel/ heaveMax) * 500 , 0, (LatAccel / lateralMax) * 500, (LongAccel / longMax) * 500)
+        move(transformData(pitch, "pitch", 500), transformData(Roll, "roll", 500), transformData(VertAccel, "heave", 500), transformData(0, "yaw", 500), transformData(LatAccel, "lateral", 500), transformData(LongAccel, "long", 500))
+        #print('Data send to chair')
+    #if chairConnected:
+    #    move(((pitch/ pitchMax) * 500), (Roll/ rollMax) * 500, (VertAccel/ heaveMax) * 500 , 0, (LatAccel / lateralMax) * 500, (LongAccel / longMax) * 500)
         #print('Data send to chair')
 
 
@@ -147,51 +129,59 @@ def sendData(PitchAxis, RollAxis, HeaveAxis, YawAxis, LateralAxis, LongAxis, por
         print("Pitchaxis.text is too long or too short")
 
     # transorming Data to fit the scale of Data the chair can use
-def transformData(_value, variable):
-    value = clampToOne(_value, variable, 500)
-    return value
-
-    #return scaleToBounds(value, 500)
-    
   
-def clampToOne(value, variable, multiplier):
+def transformData(value, variable, multiplier):
     match variable:
-        case "pitch":
-            #value = value * pitchGain
-            
-            return (value / pitchMax) * multiplier
+        case "pitch":    
+            value = (value / pitchMax) * multiplier
+            if value > 550:
+                value = 550
+            elif value < -550:
+                value = -550
 
         case "roll":
-            #value = value * rollGain
-            
-            return  (value / rollMax) * multiplier
+            value = (value / rollMax) * multiplier
+            if value > 550:
+                value = 550
+            elif value < -550:
+                value = -550            
 
         case "heave":
-            #value = value * heaveGain
+            value = (value / heaveMax) * multiplier
+            if value > 550:
+                value = 550
+            elif value < -550:
+                value = -550
             
-            return  (value / heaveMax) * multiplier
     
         case "yaw":
-            #value = value * yawGain
+            value = (value / yawMax) * multiplier
+            if value > 550:
+                value = 550
+            elif value < -550:
+                value = -550
             
-            return  (value / yawMax) * multiplier
 
         case "lateral":
-            #value = value * latGain
+            value = (value / lateralMax) * multiplier
+            if value > 550:
+                value = 550
+            elif value < -550:
+                value = -550
             
-            return  (value / lateralMax) * multiplier
 
         case "long":
-            #value = value * longGain
+            value = (value / (longMax * longGain)) * multiplier
+            if value > 550:
+                value = 550
+            elif value < -550:
+                value = -550
             
-            return  (value / (longMax * longGain)) * multiplier
         case _:
             print("no matching variable")
-    return max(-1.0, min( 1.0, value))
+            return max(-1.0, min( 1.0, value))
+    return value 
 
-def scaleToBounds(value, multiplier):
-    result = value * multiplier
-    return result
 
 def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     # convert vectors to string-components and send to X6
@@ -201,9 +191,7 @@ def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     yawAxis = toHexapodString(_yawAxis)
     latAxis = toHexapodString(_latAxis)
     longAxis = toHexapodString(_longAxis)
-    # X6.SendData(xRot, zRot, yPos, yRot, xPos, zPos, 59999)  # default values
-    # X6.SendData(zPos, zRot, yPos, xPos, yRot, xRot, 59999)  # switched values
-    # X6.SendData(xRot, zRot, yRot, yPos, xPos, zPos, 59999)  # default values
+    
     
     if (DebugMode != True):
         sendData(pitchAxis, rollAxis, vertAxis, yawAxis, latAxis, longAxis, 59999)  # default values
@@ -222,7 +210,6 @@ def move(_pitchAxis, _rollAxis, _vertAxis, _yawAxis, _latAxis, _longAxis):
     #print('yawAxis:', yawAxis)
     #print('latAxis:', latAxis)
     #print('longAxis:', longAxis)
-    # Debug.Log("zPos: "+zPos + ", zRot: " + zRot + ",yPos: " + yPos + ",xPos" + xPos + ",yRot: " + yRot + ",xRot: " + xRot)
 
 # create a three-digit string with leading 1 (-) or 0 (+) according to the sign
 def toHexapodString(_f):
