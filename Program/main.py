@@ -18,7 +18,8 @@ rollMax = 0.5
 yawMax = 1
 heaveMax = 30
 lateralMax = 40
-longMax = 90
+longMaxPlus = 60
+longMaxMinus = 90
 
 chairConnected = True
 DebugMode = False
@@ -133,21 +134,21 @@ def sendData(PitchAxis, RollAxis, HeaveAxis, YawAxis, LateralAxis, LongAxis, por
 def transformData(value, variable, multiplier):
     match variable:
         case "pitch":    
-            value = (value / pitchMax) * multiplier
+            value = ((value * pitchGain)/ pitchMax) * multiplier
             if value > 550:
                 value = 550
             elif value < -550:
                 value = -550
 
         case "roll":
-            value = (value / rollMax) * multiplier
+            value = ((value * rollGain)/ rollMax) * multiplier
             if value > 550:
                 value = 550
             elif value < -550:
-                value = -550            
+                value = -550       
 
         case "heave":
-            value = (value / heaveMax) * multiplier
+            value = ((value * heaveGain)/ heaveMax) * multiplier
             if value > 550:
                 value = 550
             elif value < -550:
@@ -155,7 +156,7 @@ def transformData(value, variable, multiplier):
             
     
         case "yaw":
-            value = (value / yawMax) * multiplier
+            value = ((value * yawGain)/ yawMax) * multiplier
             if value > 550:
                 value = 550
             elif value < -550:
@@ -163,7 +164,7 @@ def transformData(value, variable, multiplier):
             
 
         case "lateral":
-            value = (value / lateralMax) * multiplier
+            value = ((value * latGain) / lateralMax) * multiplier
             if value > 550:
                 value = 550
             elif value < -550:
@@ -171,7 +172,10 @@ def transformData(value, variable, multiplier):
             
 
         case "long":
-            value = (value / (longMax * longGain)) * multiplier
+            if  value > 0:
+                value = ((value * longGain) / longMaxPlus ) * multiplier
+            elif value <= 0:
+                value = ((value * longGain)/ longMaxMinus ) * multiplier
             if value > 550:
                 value = 550
             elif value < -550:
@@ -179,7 +183,7 @@ def transformData(value, variable, multiplier):
             
         case _:
             print("no matching variable")
-            return max(-1.0, min( 1.0, value))
+            
     return value 
 
 
