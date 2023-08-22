@@ -47,9 +47,6 @@ def loop():
     t = ir['SessionTime']
     print('session time:', t)
 
-    #speed = ir['Speed']
-    #print('Speed:', speed)
-
                       
     pitch = ir['Pitch'] * pitchGain * -1 # minus 1 bc the chair uses it the other way
     print('Pitch:', pitch)
@@ -60,12 +57,9 @@ def loop():
     VertAccel = (ir['VertAccel'] - 9.8) * heaveGain # minus 9.8 to compensate for gravity
     print('VertAccel:', VertAccel)
 
-    #Yaw = ir['Yaw'] * yawGain  # both yaw and yawnorth doesnt work because they use absolut values on direction the player is facing
-    #print('Yaw:', Yaw)
-    #YawNorth = ir['YawNorth'] * yawGain
-    #print('YawNorth:', YawNorth)
-    YawRate = ir['YawRate'] * yawGain # yawrate seems to just put out the difference in turning in a set amount of time 
-    print('YawRate:', YawRate)
+    
+    #YawRate = ir['YawRate'] * yawGain  
+   #print('YawRate:', YawRate)
 
     LatAccel = ir['LatAccel'] * latGain
     print('LatAccel:', LatAccel)
@@ -73,23 +67,6 @@ def loop():
     LongAccel= ir['LongAccel'] * longGain
     print('LongAccel:', LongAccel)
 
-
-    #PitchRate = ir['PitchRate'] #8.786555127926476e-08
-    #print('PitchRate:', PitchRate)
-    #PitchRate_ST = ir['PitchRate_ST'] #[3.257972593928571e-07, 3.3143493283205316e-07, 3.4653390912353643e-07, 2.409470312159101e-07, 1.5829981236947788e-07, 8.786555127926476e-08]
-    #print('PitchRate_ST:', PitchRate_ST)
-
-    
-    #RollRate = ir['RollRate'] #3.12117554130964e-05
-    #print('RollRate:', RollRate)
-    #RollRate_ST = ir['RollRate_ST'] #[-3.5479733924148604e-05, -3.106678923359141e-05, -2.1410816771094687e-05, -6.255076186789665e-06, 1.1896221622009762e-05, 3.12117554130964e-05]
-    #print('RollRate_ST:', RollRate_ST)
-
-    #VertAccel = ir['VertAccel'] # 9.806662559509277
-    #print('VertAccel:', VertAccel)
-
-    #VertAccel_ST = ir['VertAccel_ST'] # [9.806638717651367, 9.806638717651367, 9.806644439697266, 9.806645393371582, 9.806645393371582, 9.806646347045898]
-    #print('VertAccel_ST:', VertAccel_ST)
 
     
     
